@@ -9,12 +9,14 @@ import 'reactive_repo_status.dart';
 class ReactiveRepoState<T extends Equatable> extends Equatable {
   final ReactiveRepoStatus status;
   final T? data;
+  final Exception? exception;
 
-  ReactiveRepoState({required this.status, this.data}) : assert(!status.expectData || data != null);
+  ReactiveRepoState({required this.status, this.data, this.exception}) : assert(!status.expectData || data != null);
 
   ReactiveRepoState.initial()
       : status = ReactiveRepoStatus.initial,
-        data = null;
+        data = null,
+        exception = null;
 
   @override
   List<Object?> get props => [status, data];
@@ -30,24 +32,28 @@ class ReactiveRepoState<T extends Equatable> extends Equatable {
   bool get isSuccess => status.isSuccess;
 
   ReactiveRepoState<T> withLoading() => ReactiveRepoState(
-    status: data == null ? ReactiveRepoStatus.initialLoading : ReactiveRepoStatus.updateLoading,
-    data: data,
-  );
+        status: data == null ? ReactiveRepoStatus.initialLoading : ReactiveRepoStatus.updateLoading,
+        data: data,
+        exception: null,
+      );
 
-  ReactiveRepoState<T> withFailure() => ReactiveRepoState(
-    status: data == null ? ReactiveRepoStatus.initialFailure : ReactiveRepoStatus.updateFailure,
-    data: data,
-  );
+  ReactiveRepoState<T> withFailure({Exception? exception}) => ReactiveRepoState(
+        status: data == null ? ReactiveRepoStatus.initialFailure : ReactiveRepoStatus.updateFailure,
+        data: data,
+        exception: exception,
+      );
 
   ReactiveRepoState<T> withSuccess(T data) => ReactiveRepoState(
-    status: this.data == null ? ReactiveRepoStatus.initialSuccess : ReactiveRepoStatus.updateSuccess,
-    data: data,
-  );
+        status: this.data == null ? ReactiveRepoStatus.initialSuccess : ReactiveRepoStatus.updateSuccess,
+        data: data,
+        exception: null,
+      );
 
   ReactiveRepoState<T> withStatus(ReactiveRepoStatus status) => ReactiveRepoState(
-    status: status,
-    data: data,
-  );
+        status: status,
+        data: data,
+        exception: exception,
+      );
 
   factory ReactiveRepoState.fromJson(Map<String, dynamic> json, T? Function(Map<String, dynamic>) dataFromJson) {
     Map<String, dynamic>? dataJson = jsonDecode(json['data']);
@@ -58,8 +64,7 @@ class ReactiveRepoState<T extends Equatable> extends Equatable {
   }
 
   Map<String, dynamic> toJson() => {
-    'status': status.index,
-    'data': jsonEncode(data),
-  };
+        'status': status.index,
+        'data': jsonEncode(data),
+      };
 }
-
